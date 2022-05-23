@@ -1,0 +1,29 @@
+{
+  "name": "shader-module",
+  "version": "0.0.1",
+  "files": [
+    "dist"
+  ],
+  "main": "./dist/shader.umd.js",
+  "module": "./dist/shader.es.js",
+  "exports": {
+    ".": {
+      "import": "./dist/shader.es.js",
+      "require": "./dist/shader.umd.js"
+    }
+  },
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc && vite build",
+    "preview": "vite preview"
+  },
+  "devDependencies": {
+    "@types/three": "^0.140.0",
+    "@yushijinhun/three-minifier-rollup": "^0.3.1",
+    "typescript": "^4.5.4",
+    "vite": "^2.9.9"
+  },
+  "dependencies": {
+    "three": "^0.140.2"
+  }
+}
