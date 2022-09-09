@@ -6,7 +6,7 @@ type Uniforms = { [uniform: string]: IUniform }
 const DEFAULTS = {
   scale: 1.2,
   // scale: 2.7,
-  threshold: 0,
+  threshold: 0.1,
   timeScale: 0.03,
   scaleMin: 0.001,
   scaleMax: 0.01,
@@ -14,6 +14,8 @@ const DEFAULTS = {
   speedMax: 1.0,
   resolution: 1,
   scrollOffset: 0,
+  edgeWidth: 0.1,
+  edgePosition: 0.5,
 }
 
 const uniforms: Uniforms = {
@@ -27,6 +29,8 @@ const uniforms: Uniforms = {
   u_timeScale: { value: DEFAULTS.timeScale },
   u_texture: { value: null },
   u_scrollOffset: { value: DEFAULTS.scrollOffset },
+  u_edgeWidth: { value: DEFAULTS.edgeWidth },
+  u_edgePosition: { value: DEFAULTS.edgePosition },
 }
 
 const BasicShader = {
@@ -49,6 +53,8 @@ uniform float u_threshold;
 uniform float u_timeScale;
 uniform sampler2D u_texture;
 uniform float u_scrollOffset;
+uniform float u_edgeWidth;
+uniform float u_edgePosition;
 
 //	Simplex 3D Noise 
 //	by Ian McEwan, Ashima Arts
@@ -131,6 +137,8 @@ void main() {
   vec4 min = vec4(u_min,1.);
   float threshold = u_threshold;
   float timeScale = u_timeScale;
+  float edgeWidth = u_edgeWidth;
+  float edgePosition = u_edgePosition;
 
   float f = 0.0;
   float time = u_time * timeScale;
@@ -138,9 +146,6 @@ void main() {
   uv.y -= u_scrollOffset * u_resolution.y * scale;
   f = snoise(vec3(uv.x, uv.y, time));
   float grad = (v_uv.y)*1.5-1.;
-  // float grad = 0.;
-  
-  // float b = (1.0 - length(v_uv - (vec2(u_mouse.x,u_resolution.y- u_mouse.y)) / u_resolution) * 4.0);
 
   float aspect = u_resolution.x / u_resolution.y;
   float c = length(
@@ -162,18 +167,10 @@ void main() {
   f = (f+b+grad)/3.0;
   f = (f+1.) /2.;
   f = smoothstep(0.4, .6, f);
-  float x = smoothstep(0.4, .6, f);
+  float x = smoothstep(edgePosition-edgeWidth, edgePosition+edgeWidth, f);
 
   gl_FragColor = vec4(1.,0.,0.,1.);
   gl_FragColor = mix(min, max, x);
-  // gl_FragColor = min;
-
-  // gl_FragColor.a = smoothstep(0.0, .60, f);
-  // gl_FragColor.a = grad;
-  // gl_FragColor = vec4(vec3(x), 1.0);
-  // gl_FragColor = vec4(vec3(b), 1.0);
-
-
 }`,
   vertexShader: `#ifdef LINT
 uniform mat4 modelMatrix;
